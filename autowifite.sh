@@ -5,6 +5,23 @@
 
 LOGFILE="/var/log/autowifite.log"
 
+# Ignore SIGPIPE to prevent BrokenPipeError
+trap '' PIPE
+
+# Function to cleanup monitor mode and other tasks
+cleanup() {
+    echo "Cleaning up..."
+    if [[ -n "$MONITOR_INTERFACE" ]]; then
+        echo "Disabling monitor mode on $MONITOR_INTERFACE..."
+        airmon-ng stop "$MONITOR_INTERFACE"
+    fi
+    # Add any other cleanup tasks here
+    exit 1
+}
+
+# Trap SIGINT (Ctrl+C) and call cleanup function
+trap cleanup SIGINT
+
 # Display usage if no arguments provided
 if [ $# -eq 0 ]; then
     echo "Usage: $(basename $0) <SSID> [additional wifite options]"
@@ -48,8 +65,20 @@ fi
 INTERFACE=$(echo "$INTERFACES" | head -n1)
 echo "Using wireless interface: $INTERFACE"
 
+# Check for --kill option and terminate conflicting processes
+if [[ " $@ " =~ " --kill " ]]; then
+    echo "Killing conflicting processes..."
+    for PID in $(pgrep -f 'NetworkManager|wpa_supplicant'); do
+        echo "Killing process $PID"
+        kill -9 $PID
+    done
+fi
+
 echo "Starting wifite targeting SSID: $TARGET_SSID"
 echo "Additional options: $@"
+
+# Example of setting the MONITOR_INTERFACE variable
+MONITOR_INTERFACE=$(airmon-ng start wlan0 | grep "monitor mode enabled" | awk '{print $5}')
 
 # Run wifite with the specified SSID and any additional arguments
 wifite --essid "$TARGET_SSID" "$@" | tee -a "$LOGFILE"
@@ -66,5 +95,8 @@ if [ ! -z "$MONITOR_INTERFACE" ]; then
     airmon-ng stop "$MONITOR_INTERFACE" > /dev/null 2>&1
     echo "Monitor mode disabled."
 fi
+
+# Ensure cleanup is called on normal exit
+cleanup
 
 exit $EXIT_CODE
