@@ -29,7 +29,7 @@ This tool simplifies the wireless network penetration testing process by wrappin
 
 1. Download the script:
    ```bash
-   curl -O https://raw.githubusercontent.com/yourusername/autowifite/main/autowifite.sh
+   curl -O https://raw.githubusercontent.com/n-cognto/AutoWifite/main/autowifite.sh
    ```
 
 2. Make the script executable:
