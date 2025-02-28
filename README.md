@@ -13,7 +13,8 @@ This tool simplifies the wireless network penetration testing process by wrappin
 - Automatic monitor mode cleanup when exiting
 - Root privilege verification
 - Pass through all additional wifite parameters
-- Built-in validation to ensure wifite is installed
+- Built-in validation to ensure wifite and airmon-ng are installed
+- Logging of wifite output to a file for debugging
 - Easily extensible for additional functionality
 
 ## Prerequisites
@@ -108,6 +109,8 @@ Contributions are welcome! Please feel free to submit a Pull Request with improv
 - Added root privilege check
 - Added automatic wireless interface detection
 - Improved error handling and messaging
+- Added logging of wifite output to a file
+- Added check for airmon-ng installation
 
 ### Version 1.0
 - Initial release
